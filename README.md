@@ -1,11 +1,11 @@
-# stash-it-adapter-clientStorage
+# stash-it-adapter-clientstorage
 
 Client storage for stash-it. You can use either **localStorage** or **sessionStorage**.
 
 ## Installation
 
 ```sh
-npm i stash-it-adapter-clientStorage --save
+npm i stash-it-adapter-clientstorage --save
 ```
 
 ## Usage
@@ -14,7 +14,7 @@ npm i stash-it-adapter-clientStorage --save
 
 ```javascript
 import { createCache } from 'stash-it';
-import createClientStorageAdapter from 'stash-it-adapter-clientStorage';
+import createClientStorageAdapter from 'stash-it-adapter-clientstorage';
 
 const adapter = createClientStorageAdapter({ namespace: 'some-namespace', storage: window.localStorage });
 const cache = createCache(adapter);
@@ -41,7 +41,7 @@ any instance of cache will have access to all items stored in used storage, rega
 ```javascript
 // file1.js - executed BEFORE
 import { createCache } from 'stash-it';
-import createClientStorageAdapter from 'stash-it-adapter-clientStorage';
+import createClientStorageAdapter from 'stash-it-adapter-clientstorage';
 
 const adapter = createClientStorageAdapter({ namespace: 'some-namespace', storage: window.localStorage });
 const cache1 = createCache(adapter);
@@ -51,7 +51,7 @@ cache1.setItem('key', 'value');
 
 // file2.js - executed AFTER
 import { createCache } from 'stash-it';
-import createClientStorageAdapter from 'stash-it-adapter-clientStorage';
+import createClientStorageAdapter from 'stash-it-adapter-clientstorage';
 
 const adapter = createClientStorageAdapter({ namespace: 'some-namespace', storage: window.localStorage });
 const cache2 = createCache(adapter);
@@ -68,7 +68,7 @@ Use different namespaces for each adapter:
 ```javascript
 // file1.js - executed BEFORE
 import { createCache } from 'stash-it';
-import createClientStorageAdapter from 'stash-it-adapter-clientStorage';
+import createClientStorageAdapter from 'stash-it-adapter-clientstorage';
 
 const adapter = createClientStorageAdapter({ namespace: 'some-namespace', storage: window.localStorage });
 const cache1 = createCache(adapter);
@@ -78,7 +78,7 @@ cache1.setItem('key', 'value');
 
 // file2.js - executed AFTER
 import { createCache } from 'stash-it';
-import createClientStorageAdapter from 'stash-it-adapter-clientStorage';
+import createClientStorageAdapter from 'stash-it-adapter-clientstorage';
 
 const adapter = createClientStorageAdapter({ namespace: 'some-other-namespace', storage: window.localStorage });
 const cache2 = createCache(adapter);
