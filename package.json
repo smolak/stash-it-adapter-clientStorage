@@ -1,5 +1,5 @@
 {
-  "name": "stash-it-adapter-clientStorage",
+  "name": "stash-it-adapter-clientstorage",
   "version": "1.0.1",
   "description": "Client storage (localStorage or sessionStorage) adapter for stash-it.",
   "author": "Jacek Smolak <jacek.smolak@gmail.com>",
