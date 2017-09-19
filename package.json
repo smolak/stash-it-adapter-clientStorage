@@ -1,6 +1,6 @@
 {
   "name": "stash-it-adapter-clientstorage",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Client storage (localStorage or sessionStorage) adapter for stash-it.",
   "author": "Jacek Smolak <jacek.smolak@gmail.com>",
   "main": "build/index.js",
