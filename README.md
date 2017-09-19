@@ -1,4 +1,10 @@
+![logo-stash-it-color-dark 2x](https://user-images.githubusercontent.com/1819138/30385483-99fd209c-98a7-11e7-85e2-595791d8d894.png)
+
 # stash-it-adapter-clientstorage
+
+[![build status](https://img.shields.io/travis/smolak/stash-it-adapter-clientStorage/master.svg?style=flat-square)](https://travis-ci.org/smolak/stash-it-adapter-clientStorage)
+[![Coverage Status](https://coveralls.io/repos/github/smolak/stash-it-adapter-clientStorage/badge.svg?branch=master)](https://coveralls.io/github/smolak/stash-it-adapter-clientStorage)
+
 
 Client storage for stash-it. You can use either **localStorage** or **sessionStorage**.
 
