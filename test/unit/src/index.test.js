@@ -1,6 +1,5 @@
 import { expect } from 'chai';
 import sinon from 'sinon';
-import sinonTestFactory from 'sinon-test';
 import { createItem } from 'stash-it';
 import {
     FOO_EXTRA,
@@ -15,7 +14,7 @@ import {
 
 import createClientStorageAdapter from '../../../src/index';
 
-const sinonTest = sinonTestFactory(sinon);
+const sandbox = sinon.createSandbox();
 
 describe('clientStorageAdapter', () => {
     const namespace = 'namespace';
@@ -48,6 +47,12 @@ describe('clientStorageAdapter', () => {
         getItemStub.resetHistory();
         hasOwnPropertyStub.resetHistory();
         storageDummy.removeItem.reset();
+
+        sandbox.spy(JSON, 'stringify');
+    });
+
+    afterEach(() => {
+        sandbox.restore();
     });
 
     describe('storage validation', () => {
@@ -110,9 +115,7 @@ describe('clientStorageAdapter', () => {
             });
         });
 
-        it('should store and return item', sinonTest(function() {
-            this.spy(JSON, 'stringify');
-
+        it('should store and return item', () => {
             const adapter = createClientStorageAdapter(defaultOptions);
             const item = adapter.setItem(FOO_KEY, FOO_VALUE);
 
@@ -123,12 +126,10 @@ describe('clientStorageAdapter', () => {
             expect(JSON.stringify)
                 .to.have.been.calledWith(item)
                 .to.have.been.calledOnce;
-        }));
+        });
 
         context('when extra is passed', () => {
-            it('should store and return item with extra', sinonTest(function() {
-                this.spy(JSON, 'stringify');
-
+            it('should store and return item with extra', () => {
                 const adapter = createClientStorageAdapter(defaultOptions);
                 const item = adapter.setItem(FOO_WITH_EXTRA_KEY, FOO_VALUE, FOO_EXTRA);
 
@@ -139,15 +140,21 @@ describe('clientStorageAdapter', () => {
                 expect(JSON.stringify)
                     .to.have.been.calledWith(item)
                     .to.have.been.calledOnce;
-            }));
+            });
         });
     });
 
     describe('getItem', () => {
-        context('when item exists', () => {
-            it('should return that item', sinonTest(function() {
-                this.stub(JSON, 'parse').returns(fooItem);
+        beforeEach(() => {
+            sandbox.stub(JSON, 'parse').returns(fooItem);
+        });
 
+        afterEach(() => {
+            sandbox.restore();
+        });
+
+        context('when item exists', () => {
+            it('should return that item', () => {
                 const adapter = createClientStorageAdapter(defaultOptions);
                 const item = adapter.getItem(FOO_KEY);
 
@@ -158,7 +165,7 @@ describe('clientStorageAdapter', () => {
                 expect(JSON.parse)
                     .to.have.been.calledWith(fooItemStringified)
                     .to.have.been.calledOnce;
-            }));
+            });
         });
 
         context('when item does not exist', () => {
@@ -175,10 +182,16 @@ describe('clientStorageAdapter', () => {
     });
 
     describe('getExtra', () => {
-        context('when item exists', () => {
-            it('should return extra', sinonTest(function() {
-                this.stub(JSON, 'parse').returns(fooWithExtraItem);
+        beforeEach(() => {
+            sandbox.stub(JSON, 'parse').returns(fooWithExtraItem);
+        });
 
+        afterEach(() => {
+            sandbox.restore();
+        });
+
+        context('when item exists', () => {
+            it('should return extra', () => {
                 const adapter = createClientStorageAdapter(defaultOptions);
                 const extra = adapter.getExtra(FOO_WITH_EXTRA_KEY);
                 const expectedExtra = Object.assign({}, FOO_EXTRA, { namespace: defaultOptions.namespace });
@@ -190,7 +203,7 @@ describe('clientStorageAdapter', () => {
                 expect(JSON.parse)
                     .to.have.been.calledWith(fooWithExtraItemStringified)
                     .to.have.been.calledOnce;
-            }));
+            });
         });
 
         context('when item does not exist', () => {
