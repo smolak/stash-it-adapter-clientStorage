@@ -30,6 +30,12 @@ function validateKey(key) {
     }
 }
 
+function validateExtra(extra) {
+    if (typeof extra !== 'object' || extra === null || Array.isArray(extra)) {
+        throw new Error('`extra` must be an object.');
+    }
+}
+
 const ClientStorageAdapter = ({ storage, namespace }) => {
     validateStorage(storage);
     validateNamespace(namespace);
@@ -54,6 +60,36 @@ const ClientStorageAdapter = ({ storage, namespace }) => {
             const stringifiedItem = storage.getItem(key);
 
             return stringifiedItem === null ? undefined : JSON.parse(stringifiedItem);
+        },
+
+        addExtra(key, extra) {
+            validateExtra(extra);
+
+            const item = this.getItem(key);
+
+            if (!item) {
+                return undefined;
+            }
+
+            const currentExtra = item.extra;
+            const combinedExtra = Object.assign({}, currentExtra, extra);
+            const newItem = this.setItem(key, item.value, combinedExtra);
+
+            return newItem.extra;
+        },
+
+        setExtra(key, extra) {
+            validateExtra(extra);
+
+            const item = this.getItem(key);
+
+            if (!item) {
+                return undefined;
+            }
+
+            const newItem = this.setItem(key, item.value, extra);
+
+            return newItem.extra;
         },
 
         getExtra(key) {

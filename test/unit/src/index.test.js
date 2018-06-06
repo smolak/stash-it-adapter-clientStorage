@@ -103,18 +103,6 @@ describe('clientStorageAdapter', () => {
             testKey(adapter.setItem);
         });
 
-        describe('extra validation', () => {
-            context('when extra contains namespace property', () => {
-                it('should throw', () => {
-                    const adapter = createClientStorageAdapter(defaultOptions);
-
-                    expect(adapter.setItem.bind(adapter, FOO_KEY, FOO_VALUE, { namespace })).to.throw(
-                        '`extra` can\'t contain `namespace` property.'
-                    );
-                });
-            });
-        });
-
         it('should store and return item', () => {
             const adapter = createClientStorageAdapter(defaultOptions);
             const item = adapter.setItem(FOO_KEY, FOO_VALUE);
@@ -181,6 +169,106 @@ describe('clientStorageAdapter', () => {
         });
     });
 
+    describe('addExtra', () => {
+        beforeEach(() => {
+            sandbox.stub(JSON, 'parse')
+                .withArgs(fooWithExtraItemStringified)
+                .returns(fooWithExtraItem);
+        });
+
+        afterEach(() => {
+            sandbox.restore();
+        });
+
+        it('should add extra to existing one and return combined extra', () => {
+            const addedExtra = { something: 'else' };
+            const expectedCombinedExtra = { ...FOO_EXTRA, ...addedExtra };
+            const adapter = createClientStorageAdapter(defaultOptions);
+            const returnedExtra = adapter.addExtra(FOO_WITH_EXTRA_KEY, addedExtra);
+
+            expect(returnedExtra).to.deep.equal(expectedCombinedExtra);
+        });
+
+        context('when extra is not an object', () => {
+            it('should throw', () => {
+                const adapter = createClientStorageAdapter(defaultOptions);
+
+                nonObjectValues.forEach((nonObjectValue) => {
+                    if (nonObjectValue !== undefined) {
+                        expect(adapter.addExtra.bind(adapter, FOO_KEY, nonObjectValue)).to.throw(
+                            '`extra` must be an object.'
+                        );
+                    }
+                });
+            });
+        });
+
+        context('when item does not exist', () => {
+            it('should return undefined', () => {
+                const adapter = createClientStorageAdapter(defaultOptions);
+                const addedExtra = adapter.addExtra(NONEXISTENT_KEY, FOO_EXTRA);
+
+                expect(addedExtra).to.be.undefined;
+            });
+        });
+
+        context('when added extra contains properties of existing extra', () => {
+            it('should return extra with existing properties overwritten with new ones', () => {
+                const adapter = createClientStorageAdapter(defaultOptions);
+                const extraToAdd = { foo: 'entirely different foo extra' };
+                const returnedExtra = adapter.addExtra(FOO_WITH_EXTRA_KEY, extraToAdd);
+                const expectedCombinedExtra = { ...FOO_EXTRA, ...extraToAdd };
+
+                expect(returnedExtra).to.deep.equal(expectedCombinedExtra);
+            });
+        });
+    });
+
+    describe('setExtra', () => {
+        beforeEach(() => {
+            sandbox.stub(JSON, 'parse')
+                .withArgs(fooWithExtraItemStringified)
+                .returns(fooWithExtraItem);
+        });
+
+        afterEach(() => {
+            sandbox.restore();
+        });
+
+        it('should store and return extra', () => {
+            const adapter = createClientStorageAdapter(defaultOptions);
+            const currentExtra = adapter.getExtra(FOO_WITH_EXTRA_KEY);
+            const newExtra = { something: 'else' };
+            const returnedExtra = adapter.setExtra(FOO_WITH_EXTRA_KEY, newExtra);
+
+            expect(currentExtra).to.deep.equal(FOO_EXTRA);
+            expect(returnedExtra).to.deep.equal(newExtra);
+        });
+
+        context('when extra is not an object', () => {
+            it('should throw', () => {
+                const adapter = createClientStorageAdapter(defaultOptions);
+
+                nonObjectValues.forEach((nonObjectValue) => {
+                    if (nonObjectValue !== undefined) {
+                        expect(adapter.setExtra.bind(adapter, FOO_KEY, nonObjectValue)).to.throw(
+                            '`extra` must be an object.'
+                        );
+                    }
+                });
+            });
+        });
+
+        context('when item does not exist', () => {
+            it('should return undefined', () => {
+                const adapter = createClientStorageAdapter(defaultOptions);
+                const extra = adapter.setExtra(NONEXISTENT_KEY, FOO_EXTRA);
+
+                expect(extra).to.be.undefined;
+            });
+        });
+    });
+
     describe('getExtra', () => {
         beforeEach(() => {
             sandbox.stub(JSON, 'parse').returns(fooWithExtraItem);
@@ -194,14 +282,10 @@ describe('clientStorageAdapter', () => {
             it('should return extra', () => {
                 const adapter = createClientStorageAdapter(defaultOptions);
                 const extra = adapter.getExtra(FOO_WITH_EXTRA_KEY);
-                const expectedExtra = Object.assign({}, FOO_EXTRA, { namespace: defaultOptions.namespace });
 
-                expect(extra).to.deep.equal(expectedExtra);
+                expect(extra).to.deep.equal(FOO_EXTRA);
                 expect(storageDummy.getItem)
                     .to.have.been.calledWith(FOO_WITH_EXTRA_KEY)
-                    .to.have.been.calledOnce;
-                expect(JSON.parse)
-                    .to.have.been.calledWith(fooWithExtraItemStringified)
                     .to.have.been.calledOnce;
             });
         });
