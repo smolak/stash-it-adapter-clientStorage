@@ -8,6 +8,9 @@
 
 Client storage for stash-it. You can use either **localStorage** or **sessionStorage**.
 
+It's build in **ES6** for modern browsers. If you need to run it in older ones,
+you will have to transpile it. See `.babelrc` file for more details.
+
 ## Installation
 
 ```sh
