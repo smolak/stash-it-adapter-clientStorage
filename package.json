@@ -35,22 +35,19 @@
     "@babel/preset-env": "^7.0.0-beta.49",
     "@babel/register": "^7.0.0-beta.49",
     "babel-plugin-istanbul": "^4.1.6",
-    "babel-polyfill": "^6.26.0",
-    "babel-preset-env": "^1.6.1",
-    "babel-register": "^6.26.0",
-    "chai": "^3.5.0",
-    "eslint": "^4.11.0",
-    "eslint-plugin-import": "^2.8.0",
-    "eslint-plugin-markdown": "^1.0.0-beta.7",
-    "eslint-plugin-mocha": "^4.11.0",
-    "mocha": "^4.0.1",
-    "nyc": "^11.3.0",
-    "sinon": "^4.1.2",
-    "sinon-chai": "^2.14.0",
-    "stash-it": "^2.0.0",
-    "stash-it-test-helpers": "^1.5.1"
+    "chai": "^4.1.2",
+    "eslint": "^4.19.1",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-markdown": "^1.0.0-beta.8",
+    "eslint-plugin-mocha": "^5.0.0",
+    "mocha": "^5.2.0",
+    "nyc": "^12.0.2",
+    "sinon": "^5.1.0",
+    "sinon-chai": "^3.1.0",
+    "stash-it": "^3.0.0-rc.3",
+    "stash-it-test-helpers": "^1.6.0"
   },
   "peerDependencies": {
-    "stash-it": "^2.0.0"
+    "stash-it": "^3.0.0-rc.3"
   }
 }

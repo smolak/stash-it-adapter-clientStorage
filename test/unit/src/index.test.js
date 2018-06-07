@@ -43,10 +43,10 @@ describe('clientStorageAdapter', () => {
     const defaultOptions = { storage: storageDummy, namespace };
 
     beforeEach(() => {
-        storageDummy.setItem.reset();
+        storageDummy.setItem.resetHistory();
         getItemStub.resetHistory();
         hasOwnPropertyStub.resetHistory();
-        storageDummy.removeItem.reset();
+        storageDummy.removeItem.resetHistory();
 
         sandbox.spy(JSON, 'stringify');
     });
@@ -373,7 +373,7 @@ describe('clientStorageAdapter', () => {
                 expect(customHasOwnPropertyStub)
                     .to.have.been.calledWith(NONEXISTENT_KEY)
                     .to.have.been.calledOnce;
-                expect(storageDummy.removeItem).to.not.have.beenCalled;
+                expect(storageDummy.removeItem).to.not.have.been.called;
             });
         });
     });
