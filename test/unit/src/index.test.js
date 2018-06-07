@@ -88,6 +88,14 @@ describe('clientStorageAdapter', () => {
         testNamespace(createClientStorageAdapter, { storage: {} });
     });
 
+    describe('getNamespace', () => {
+        it('should return namespace', () => {
+            const adapter = createClientStorageAdapter(defaultOptions);
+
+            expect(adapter.getNamespace()).to.equal('namespace');
+        });
+    });
+
     describe('buildKey', () => {
         it('should return key string composed of passed key and namespace', () => {
             const adapter = createClientStorageAdapter(defaultOptions);

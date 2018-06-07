@@ -41,6 +41,10 @@ const ClientStorageAdapter = ({ storage, namespace }) => {
     validateNamespace(namespace);
 
     return {
+        getNamespace() {
+            return namespace;
+        },
+
         buildKey(key) {
             return `${namespace}.${key}`;
         },
