@@ -10,16 +10,6 @@ function validateStorage(storage) {
     }
 }
 
-function validateNamespace(namespace) {
-    if (typeof namespace !== 'string') {
-        throw new Error('`namespace` must be a string.');
-    }
-
-    if (false === /^[A-Za-z0-9_-]+$/i.test(namespace)) {
-        throw Error('`namespace` can contain only letters, numbers, `_` or `-`.');
-    }
-}
-
 function validateKey(key) {
     if (typeof key !== 'string') {
         throw new Error('`key` must be a string.');
@@ -36,23 +26,18 @@ function validateExtra(extra) {
     }
 }
 
-const ClientStorageAdapter = ({ storage, namespace }) => {
+const ClientStorageAdapter = ({ storage }) => {
     validateStorage(storage);
-    validateNamespace(namespace);
 
     return {
-        getNamespace() {
-            return namespace;
-        },
-
         buildKey(key) {
-            return `${namespace}.${key}`;
+            return key;
         },
 
         setItem(key, value, extra = {}) {
             validateKey(key);
 
-            const item = createItem(key, value, namespace, extra);
+            const item = createItem(key, value, extra);
             const stringifiedItem = JSON.stringify(item);
 
             storage.setItem(key, stringifiedItem);

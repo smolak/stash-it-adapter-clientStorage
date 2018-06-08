@@ -8,8 +8,7 @@ import {
     FOO_WITH_EXTRA_KEY,
     NONEXISTENT_KEY,
     nonObjectValues,
-    testKey,
-    testNamespace
+    testKey
 } from 'stash-it-test-helpers';
 
 import createClientStorageAdapter from '../../../src/index';
@@ -17,10 +16,9 @@ import createClientStorageAdapter from '../../../src/index';
 const sandbox = sinon.createSandbox();
 
 describe('clientStorageAdapter', () => {
-    const namespace = 'namespace';
     const getItemStub = sinon.stub();
-    const fooItem = createItem(FOO_KEY, FOO_VALUE, namespace);
-    const fooWithExtraItem = createItem(FOO_WITH_EXTRA_KEY, FOO_VALUE, namespace, FOO_EXTRA);
+    const fooItem = createItem(FOO_KEY, FOO_VALUE);
+    const fooWithExtraItem = createItem(FOO_WITH_EXTRA_KEY, FOO_VALUE, FOO_EXTRA);
     const fooItemStringified = JSON.stringify(fooItem);
     const fooWithExtraItemStringified = JSON.stringify(fooWithExtraItem);
 
@@ -40,7 +38,7 @@ describe('clientStorageAdapter', () => {
         hasOwnProperty: hasOwnPropertyStub,
         removeItem: sinon.spy()
     };
-    const defaultOptions = { storage: storageDummy, namespace };
+    const defaultOptions = { storage: storageDummy };
 
     beforeEach(() => {
         storageDummy.setItem.resetHistory();
@@ -59,7 +57,7 @@ describe('clientStorageAdapter', () => {
         context('when Storage is not an object', () => {
             it('should throw', () => {
                 nonObjectValues.forEach((storage) => {
-                    expect(createClientStorageAdapter.bind(null, { storage, namespace }))
+                    expect(createClientStorageAdapter.bind(null, { storage }))
                         .to.throw('`storage` must be an object.');
                 });
             });
@@ -77,30 +75,18 @@ describe('clientStorageAdapter', () => {
             });
 
             it('should throw', () => {
-                expect(createClientStorageAdapter.bind(null, { storage: {}, namespace })).to.throw(
+                expect(createClientStorageAdapter.bind(null, { storage: {} })).to.throw(
                     'Storage (localStorage or sessionStorage) is not supported.'
                 );
             });
         });
     });
 
-    describe('namespace validation', () => {
-        testNamespace(createClientStorageAdapter, { storage: {} });
-    });
-
-    describe('getNamespace', () => {
-        it('should return namespace', () => {
-            const adapter = createClientStorageAdapter(defaultOptions);
-
-            expect(adapter.getNamespace()).to.equal('namespace');
-        });
-    });
-
     describe('buildKey', () => {
-        it('should return key string composed of passed key and namespace', () => {
+        it('should return built key', () => {
             const adapter = createClientStorageAdapter(defaultOptions);
 
-            expect(adapter.buildKey('key')).to.eq('namespace.key');
+            expect(adapter.buildKey('key')).to.eq('key');
         });
     });
 
@@ -352,7 +338,7 @@ describe('clientStorageAdapter', () => {
                     storageDummy,
                     { hasOwnProperty: customHasOwnPropertyStub }
                 );
-                const adapter = createClientStorageAdapter({ storage: customStorageDummy, namespace });
+                const adapter = createClientStorageAdapter({ storage: customStorageDummy });
                 const result = adapter.removeItem(FOO_KEY);
 
                 expect(result).to.be.true;
@@ -374,7 +360,7 @@ describe('clientStorageAdapter', () => {
                     storageDummy,
                     { hasOwnProperty: customHasOwnPropertyStub }
                 );
-                const adapter = createClientStorageAdapter({ storage: customStorageDummy, namespace });
+                const adapter = createClientStorageAdapter({ storage: customStorageDummy });
                 const result = adapter.removeItem(NONEXISTENT_KEY);
 
                 expect(result).to.be.false;
