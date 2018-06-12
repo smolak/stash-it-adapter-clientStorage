@@ -25,34 +25,28 @@ npm i stash-it-adapter-clientstorage --save
 import { createCache } from 'stash-it';
 import createClientStorageAdapter from 'stash-it-adapter-clientstorage';
 
-const adapter = createClientStorageAdapter({ namespace: 'some-namespace', storage: window.localStorage });
+const adapter = createClientStorageAdapter({ storage: window.localStorage });
 const cache = createCache(adapter);
 ```
 
 And that's it. You are ready to go.
 
-The only configuration you need to provide is:
- - `namespace` (as a property in passed object).
-   `namespace` must be a string consisting only out of letters (azAZ), numbers, and -, _ characters in any combination.
-   E.g. `some-namespace_123`.
-
-   If validation fails, it will throw an error.
-
- - `storage` - a reference to localStorage or sessionStorage
+The only configuration you need to provide is `storage` - a reference to localStorage or sessionStorage
 
 For available methods, check [adapters section in stash-it](https://smolak.github.io/stash-it/adapters.html) (all adapters have the same API).
 
 ### Heads-up!
 
-For adapters with the same namespace, and run in the same browser for the same domain,
-any instance of cache will have access to all items stored in used storage, regardless of which cache instance was used:
+For adapters used in the same browser for the same domain,
+any instance of cache will have access to all items stored in used storage,
+regardless of which cache instance was used:
 
 ```javascript
 // file1.js - executed BEFORE
 import { createCache } from 'stash-it';
 import createClientStorageAdapter from 'stash-it-adapter-clientstorage';
 
-const adapter = createClientStorageAdapter({ namespace: 'some-namespace', storage: window.localStorage });
+const adapter = createClientStorageAdapter({ storage: window.localStorage });
 const cache1 = createCache(adapter);
 
 cache1.setItem('key', 'value');
@@ -62,7 +56,7 @@ cache1.setItem('key', 'value');
 import { createCache } from 'stash-it';
 import createClientStorageAdapter from 'stash-it-adapter-clientstorage';
 
-const adapter = createClientStorageAdapter({ namespace: 'some-namespace', storage: window.localStorage });
+const adapter = createClientStorageAdapter({ storage: window.localStorage });
 const cache2 = createCache(adapter);
 
 cache2.hasItem('key'); // true
@@ -70,27 +64,13 @@ cache2.hasItem('key'); // true
 
 And that goes for all of the methods.
 
-#### How to prevent this?
+#### How to bypass this (if needed)?
 
-Use different namespaces for each adapter:
+The suggested way is to use a plugin with hook for `preBuildKey` event.
+This plugin should prefix / suffix the key being passed to the event
+handler. When a new key is built using the prefix / suffix, it will be
+then used to set / get item from persistance to which adapter gvies
+access to.
 
-```javascript
-// file1.js - executed BEFORE
-import { createCache } from 'stash-it';
-import createClientStorageAdapter from 'stash-it-adapter-clientstorage';
-
-const adapter = createClientStorageAdapter({ namespace: 'some-namespace', storage: window.localStorage });
-const cache1 = createCache(adapter);
-
-cache1.setItem('key', 'value');
-
-
-// file2.js - executed AFTER
-import { createCache } from 'stash-it';
-import createClientStorageAdapter from 'stash-it-adapter-clientstorage';
-
-const adapter = createClientStorageAdapter({ namespace: 'some-other-namespace', storage: window.localStorage });
-const cache2 = createCache(adapter);
-
-cache2.hasItem('key'); // false
-```
+For more information on how hooks / plugins work, checkout
+[stash-it](https://www.npmjs.com/package/stash-it)'s docs.
