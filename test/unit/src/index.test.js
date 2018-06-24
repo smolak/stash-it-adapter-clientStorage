@@ -7,8 +7,7 @@ import {
     FOO_VALUE,
     FOO_WITH_EXTRA_KEY,
     NONEXISTENT_KEY,
-    nonObjectValues,
-    testKey
+    nonObjectValues
 } from 'stash-it-test-helpers';
 
 import createClientStorageAdapter from '../../../src/index';
@@ -91,12 +90,6 @@ describe('clientStorageAdapter', () => {
     });
 
     describe('setItem', () => {
-        describe('key validation', () => {
-            const adapter = createClientStorageAdapter(defaultOptions);
-
-            testKey(adapter.setItem);
-        });
-
         it('should store and return item', () => {
             const adapter = createClientStorageAdapter(defaultOptions);
             const item = adapter.setItem(FOO_KEY, FOO_VALUE);
@@ -183,20 +176,6 @@ describe('clientStorageAdapter', () => {
             expect(returnedExtra).to.deep.equal(expectedCombinedExtra);
         });
 
-        context('when extra is not an object', () => {
-            it('should throw', () => {
-                const adapter = createClientStorageAdapter(defaultOptions);
-
-                nonObjectValues.forEach((nonObjectValue) => {
-                    if (nonObjectValue !== undefined) {
-                        expect(adapter.addExtra.bind(adapter, FOO_KEY, nonObjectValue)).to.throw(
-                            '`extra` must be an object.'
-                        );
-                    }
-                });
-            });
-        });
-
         context('when item does not exist', () => {
             it('should return undefined', () => {
                 const adapter = createClientStorageAdapter(defaultOptions);
@@ -237,20 +216,6 @@ describe('clientStorageAdapter', () => {
 
             expect(currentExtra).to.deep.equal(FOO_EXTRA);
             expect(returnedExtra).to.deep.equal(newExtra);
-        });
-
-        context('when extra is not an object', () => {
-            it('should throw', () => {
-                const adapter = createClientStorageAdapter(defaultOptions);
-
-                nonObjectValues.forEach((nonObjectValue) => {
-                    if (nonObjectValue !== undefined) {
-                        expect(adapter.setExtra.bind(adapter, FOO_KEY, nonObjectValue)).to.throw(
-                            '`extra` must be an object.'
-                        );
-                    }
-                });
-            });
         });
 
         context('when item does not exist', () => {

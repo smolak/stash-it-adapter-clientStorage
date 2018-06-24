@@ -10,22 +10,6 @@ function validateStorage(storage) {
     }
 }
 
-function validateKey(key) {
-    if (typeof key !== 'string') {
-        throw new Error('`key` must be a string.');
-    }
-
-    if (false === /^[A-Za-z0-9._-]+$/i.test(key)) {
-        throw Error('`key` can contain only letters, numbers, `_`, `.` or `-`.');
-    }
-}
-
-function validateExtra(extra) {
-    if (typeof extra !== 'object' || extra === null || Array.isArray(extra)) {
-        throw new Error('`extra` must be an object.');
-    }
-}
-
 const ClientStorageAdapter = ({ storage }) => {
     validateStorage(storage);
 
@@ -35,8 +19,6 @@ const ClientStorageAdapter = ({ storage }) => {
         },
 
         setItem(key, value, extra = {}) {
-            validateKey(key);
-
             const item = createItem(key, value, extra);
             const stringifiedItem = JSON.stringify(item);
 
@@ -52,8 +34,6 @@ const ClientStorageAdapter = ({ storage }) => {
         },
 
         addExtra(key, extra) {
-            validateExtra(extra);
-
             const item = this.getItem(key);
 
             if (!item) {
@@ -68,8 +48,6 @@ const ClientStorageAdapter = ({ storage }) => {
         },
 
         setExtra(key, extra) {
-            validateExtra(extra);
-
             const item = this.getItem(key);
 
             if (!item) {
