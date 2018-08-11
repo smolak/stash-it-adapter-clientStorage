@@ -5,6 +5,7 @@ function validateStorage(storage) {
         throw new Error('`storage` must be an object.');
     }
 
+    /* eslint-disable no-undef */
     if (typeof window.Storage === 'undefined') {
         throw new Error('Storage (localStorage or sessionStorage) is not supported.');
     }
