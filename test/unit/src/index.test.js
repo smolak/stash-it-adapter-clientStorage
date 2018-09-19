@@ -85,7 +85,7 @@ describe('clientStorageAdapter', () => {
         it('should return built key', () => {
             const adapter = createClientStorageAdapter(defaultOptions);
 
-            expect(adapter.buildKey('key')).to.eq('key');
+            expect(adapter.buildKey('key')).to.eventually.equal('key');
         });
     });
 

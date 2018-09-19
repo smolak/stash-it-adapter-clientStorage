@@ -16,7 +16,7 @@ const ClientStorageAdapter = ({ storage }) => {
 
     return {
         buildKey(key) {
-            return key;
+            return Promise.resolve(key);
         },
 
         setItem(key, value, extra = {}) {
