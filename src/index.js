@@ -30,37 +30,38 @@ const ClientStorageAdapter = ({ storage }) => {
 
         getItem(key) {
             const stringifiedItem = storage.getItem(key);
+            const result = stringifiedItem === null ? undefined : JSON.parse(stringifiedItem);
 
-            return stringifiedItem === null ? undefined : JSON.parse(stringifiedItem);
+            return Promise.resolve(result);
         },
 
         addExtra(key, extra) {
-            const item = this.getItem(key);
+            return this.getItem(key).then((item) => {
+                if (!item) {
+                    return undefined;
+                }
 
-            if (!item) {
-                return Promise.resolve(undefined);
-            }
+                const currentExtra = item.extra;
+                const combinedExtra = Object.assign({}, currentExtra, extra);
 
-            const currentExtra = item.extra;
-            const combinedExtra = Object.assign({}, currentExtra, extra);
-
-            return this.setItem(key, item.value, combinedExtra).then((newItem) => newItem.extra);
+                return this.setItem(key, item.value, combinedExtra).then((newItem) => newItem.extra);
+            });
         },
 
         setExtra(key, extra) {
-            const item = this.getItem(key);
+            return this.getItem(key).then((item) => {
+                if (!item) {
+                    return undefined;
+                }
 
-            if (!item) {
-                return Promise.resolve(undefined);
-            }
-
-            return this.setItem(key, item.value, extra).then((newItem) => newItem.extra);
+                return this.setItem(key, item.value, extra).then((newItem) => newItem.extra);
+            });
         },
 
         getExtra(key) {
-            const item = this.getItem(key);
-
-            return item ? item.extra : undefined;
+            return this.getItem(key).then((item) => {
+                return item ? item.extra : undefined;
+            });
         },
 
         hasItem(key) {

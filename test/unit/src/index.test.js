@@ -135,29 +135,35 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when item exists', () => {
-            it('should return that item', () => {
+            it('should return that item', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
-                const item = adapter.getItem(FOO_KEY);
 
-                expect(item).to.deep.eq(fooItem);
-                expect(storageDummy.getItem)
-                    .to.have.been.calledWith(FOO_KEY)
-                    .to.have.been.calledOnce;
-                expect(JSON.parse)
-                    .to.have.been.calledWith(fooItemStringified)
-                    .to.have.been.calledOnce;
+                adapter.getItem(FOO_KEY).then((item) => {
+                    expect(item).to.deep.eq(fooItem);
+                    expect(storageDummy.getItem)
+                        .to.have.been.calledWith(FOO_KEY)
+                        .to.have.been.calledOnce;
+                    expect(JSON.parse)
+                        .to.have.been.calledWith(fooItemStringified)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
             });
         });
 
         context('when item does not exist', () => {
-            it('should return undefined', () => {
+            it('should return undefined', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
-                const item = adapter.getItem(NONEXISTENT_KEY);
 
-                expect(item).to.be.undefined;
-                expect(storageDummy.getItem)
-                    .to.have.been.calledWith(NONEXISTENT_KEY)
-                    .to.have.been.calledOnce;
+                adapter.getItem(NONEXISTENT_KEY).then((item) => {
+                    expect(item).to.be.undefined;
+                    expect(storageDummy.getItem)
+                        .to.have.been.calledWith(NONEXISTENT_KEY)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
             });
         });
     });
@@ -214,12 +220,13 @@ describe('clientStorageAdapter', () => {
 
         it('should store and return extra', () => {
             const adapter = createClientStorageAdapter(defaultOptions);
-            const currentExtra = adapter.getExtra(FOO_WITH_EXTRA_KEY);
             const newExtra = { something: 'else' };
 
-            expect(adapter.setExtra(FOO_WITH_EXTRA_KEY, newExtra)).to.eventually.deep.equal(newExtra);
+            adapter.getExtra(FOO_WITH_EXTRA_KEY).then((extra) => {
+                expect(extra).to.deep.equal(FOO_EXTRA);
 
-            expect(currentExtra).to.deep.equal(FOO_EXTRA);
+                expect(adapter.setExtra(FOO_WITH_EXTRA_KEY, newExtra)).to.eventually.deep.equal(newExtra);
+            });
         });
 
         context('when item does not exist', () => {
@@ -241,26 +248,32 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when item exists', () => {
-            it('should return extra', () => {
+            it('should return extra', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
-                const extra = adapter.getExtra(FOO_WITH_EXTRA_KEY);
 
-                expect(extra).to.deep.equal(FOO_EXTRA);
-                expect(storageDummy.getItem)
-                    .to.have.been.calledWith(FOO_WITH_EXTRA_KEY)
-                    .to.have.been.calledOnce;
+                adapter.getExtra(FOO_WITH_EXTRA_KEY).then((extra) => {
+                    expect(extra).to.deep.equal(FOO_EXTRA);
+                    expect(storageDummy.getItem)
+                        .to.have.been.calledWith(FOO_WITH_EXTRA_KEY)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
             });
         });
 
         context('when item does not exist', () => {
-            it('should return undefined', () => {
+            it('should return undefined', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
-                const extra = adapter.getExtra(NONEXISTENT_KEY);
 
-                expect(extra).to.be.undefined;
-                expect(storageDummy.getItem)
-                    .to.have.been.calledWith(NONEXISTENT_KEY)
-                    .to.have.been.calledOnce;
+                adapter.getExtra(NONEXISTENT_KEY).then((extra) => {
+                    expect(extra).to.be.undefined;
+                    expect(storageDummy.getItem)
+                        .to.have.been.calledWith(NONEXISTENT_KEY)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
             });
         });
     });
