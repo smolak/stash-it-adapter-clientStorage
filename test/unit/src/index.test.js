@@ -90,31 +90,37 @@ describe('clientStorageAdapter', () => {
     });
 
     describe('setItem', () => {
-        it('should store and return item', () => {
+        it('should store and return item', (done) => {
             const adapter = createClientStorageAdapter(defaultOptions);
-            const item = adapter.setItem(FOO_KEY, FOO_VALUE);
 
-            expect(item).to.deep.eq(fooItem);
-            expect(storageDummy.setItem)
-                .to.have.been.calledWith(FOO_KEY, fooItemStringified)
-                .to.have.been.calledOnce;
-            expect(JSON.stringify)
-                .to.have.been.calledWith(item)
-                .to.have.been.calledOnce;
-        });
-
-        context('when extra is passed', () => {
-            it('should store and return item with extra', () => {
-                const adapter = createClientStorageAdapter(defaultOptions);
-                const item = adapter.setItem(FOO_WITH_EXTRA_KEY, FOO_VALUE, FOO_EXTRA);
-
-                expect(item).to.deep.eq(fooWithExtraItem);
+            adapter.setItem(FOO_KEY, FOO_VALUE).then((item) => {
+                expect(item).to.deep.eq(fooItem);
                 expect(storageDummy.setItem)
-                    .to.have.been.calledWith(FOO_WITH_EXTRA_KEY, fooWithExtraItemStringified)
+                    .to.have.been.calledWith(FOO_KEY, fooItemStringified)
                     .to.have.been.calledOnce;
                 expect(JSON.stringify)
                     .to.have.been.calledWith(item)
                     .to.have.been.calledOnce;
+
+                done();
+            });
+        });
+
+        context('when extra is passed', () => {
+            it('should store and return item with extra', (done) => {
+                const adapter = createClientStorageAdapter(defaultOptions);
+
+                adapter.setItem(FOO_WITH_EXTRA_KEY, FOO_VALUE, FOO_EXTRA).then((item) => {
+                    expect(item).to.deep.eq(fooWithExtraItem);
+                    expect(storageDummy.setItem)
+                        .to.have.been.calledWith(FOO_WITH_EXTRA_KEY, fooWithExtraItemStringified)
+                        .to.have.been.calledOnce;
+                    expect(JSON.stringify)
+                        .to.have.been.calledWith(item)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
             });
         });
     });
@@ -171,17 +177,15 @@ describe('clientStorageAdapter', () => {
             const addedExtra = { something: 'else' };
             const expectedCombinedExtra = { ...FOO_EXTRA, ...addedExtra };
             const adapter = createClientStorageAdapter(defaultOptions);
-            const returnedExtra = adapter.addExtra(FOO_WITH_EXTRA_KEY, addedExtra);
 
-            expect(returnedExtra).to.deep.equal(expectedCombinedExtra);
+            expect(adapter.addExtra(FOO_WITH_EXTRA_KEY, addedExtra)).to.eventually.deep.equal(expectedCombinedExtra);
         });
 
         context('when item does not exist', () => {
             it('should return undefined', () => {
                 const adapter = createClientStorageAdapter(defaultOptions);
-                const addedExtra = adapter.addExtra(NONEXISTENT_KEY, FOO_EXTRA);
 
-                expect(addedExtra).to.be.undefined;
+                expect(adapter.addExtra(NONEXISTENT_KEY, FOO_EXTRA)).to.eventually.be.undefined;
             });
         });
 
@@ -189,10 +193,10 @@ describe('clientStorageAdapter', () => {
             it('should return extra with existing properties overwritten with new ones', () => {
                 const adapter = createClientStorageAdapter(defaultOptions);
                 const extraToAdd = { foo: 'entirely different foo extra' };
-                const returnedExtra = adapter.addExtra(FOO_WITH_EXTRA_KEY, extraToAdd);
                 const expectedCombinedExtra = { ...FOO_EXTRA, ...extraToAdd };
 
-                expect(returnedExtra).to.deep.equal(expectedCombinedExtra);
+                expect(adapter.addExtra(FOO_WITH_EXTRA_KEY, extraToAdd))
+                    .to.eventually.deep.equal(expectedCombinedExtra);
             });
         });
     });
@@ -212,18 +216,17 @@ describe('clientStorageAdapter', () => {
             const adapter = createClientStorageAdapter(defaultOptions);
             const currentExtra = adapter.getExtra(FOO_WITH_EXTRA_KEY);
             const newExtra = { something: 'else' };
-            const returnedExtra = adapter.setExtra(FOO_WITH_EXTRA_KEY, newExtra);
+
+            expect(adapter.setExtra(FOO_WITH_EXTRA_KEY, newExtra)).to.eventually.deep.equal(newExtra);
 
             expect(currentExtra).to.deep.equal(FOO_EXTRA);
-            expect(returnedExtra).to.deep.equal(newExtra);
         });
 
         context('when item does not exist', () => {
             it('should return undefined', () => {
                 const adapter = createClientStorageAdapter(defaultOptions);
-                const extra = adapter.setExtra(NONEXISTENT_KEY, FOO_EXTRA);
 
-                expect(extra).to.be.undefined;
+                expect(adapter.setExtra(NONEXISTENT_KEY, FOO_EXTRA)).to.eventually.be.undefined;
             });
         });
     });

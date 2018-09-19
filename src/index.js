@@ -25,7 +25,7 @@ const ClientStorageAdapter = ({ storage }) => {
 
             storage.setItem(key, stringifiedItem);
 
-            return item;
+            return Promise.resolve(item);
         },
 
         getItem(key) {
@@ -38,26 +38,23 @@ const ClientStorageAdapter = ({ storage }) => {
             const item = this.getItem(key);
 
             if (!item) {
-                return undefined;
+                return Promise.resolve(undefined);
             }
 
             const currentExtra = item.extra;
             const combinedExtra = Object.assign({}, currentExtra, extra);
-            const newItem = this.setItem(key, item.value, combinedExtra);
 
-            return newItem.extra;
+            return this.setItem(key, item.value, combinedExtra).then((newItem) => newItem.extra);
         },
 
         setExtra(key, extra) {
             const item = this.getItem(key);
 
             if (!item) {
-                return undefined;
+                return Promise.resolve(undefined);
             }
 
-            const newItem = this.setItem(key, item.value, extra);
-
-            return newItem.extra;
+            return this.setItem(key, item.value, extra).then((newItem) => newItem.extra);
         },
 
         getExtra(key) {
