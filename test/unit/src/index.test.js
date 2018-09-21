@@ -82,7 +82,7 @@ describe('clientStorageAdapter', () => {
     });
 
     describe('buildKey', () => {
-        it('should return built key', () => {
+        it('should resolve with built key', () => {
             const adapter = createClientStorageAdapter(defaultOptions);
 
             expect(adapter.buildKey('key')).to.eventually.equal('key');
@@ -90,7 +90,7 @@ describe('clientStorageAdapter', () => {
     });
 
     describe('setItem', () => {
-        it('should store and return item', (done) => {
+        it('should store and resolve with item', (done) => {
             const adapter = createClientStorageAdapter(defaultOptions);
 
             adapter.setItem(FOO_KEY, FOO_VALUE).then((item) => {
@@ -107,7 +107,7 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when extra is passed', () => {
-            it('should store and return item with extra', (done) => {
+            it('should store and resolve with item with extra', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
 
                 adapter.setItem(FOO_WITH_EXTRA_KEY, FOO_VALUE, FOO_EXTRA).then((item) => {
@@ -135,7 +135,7 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when item exists', () => {
-            it('should return that item', (done) => {
+            it('should resolve with that item', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
 
                 adapter.getItem(FOO_KEY).then((item) => {
@@ -153,7 +153,7 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when item does not exist', () => {
-            it('should return undefined', (done) => {
+            it('should resolve with undefined', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
 
                 adapter.getItem(NONEXISTENT_KEY).then((item) => {
@@ -179,7 +179,7 @@ describe('clientStorageAdapter', () => {
             sandbox.restore();
         });
 
-        it('should add extra to existing one and return combined extra', () => {
+        it('should add extra to existing one and resolve with combined extra', () => {
             const addedExtra = { something: 'else' };
             const expectedCombinedExtra = { ...FOO_EXTRA, ...addedExtra };
             const adapter = createClientStorageAdapter(defaultOptions);
@@ -188,7 +188,7 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when item does not exist', () => {
-            it('should return undefined', () => {
+            it('should resolve with undefined', () => {
                 const adapter = createClientStorageAdapter(defaultOptions);
 
                 expect(adapter.addExtra(NONEXISTENT_KEY, FOO_EXTRA)).to.eventually.be.undefined;
@@ -196,7 +196,7 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when added extra contains properties of existing extra', () => {
-            it('should return extra with existing properties overwritten with new ones', () => {
+            it('should resolve with extra where existing properties are overwritten with new ones', () => {
                 const adapter = createClientStorageAdapter(defaultOptions);
                 const extraToAdd = { foo: 'entirely different foo extra' };
                 const expectedCombinedExtra = { ...FOO_EXTRA, ...extraToAdd };
@@ -218,7 +218,7 @@ describe('clientStorageAdapter', () => {
             sandbox.restore();
         });
 
-        it('should store and return extra', () => {
+        it('should store and resolve with extra', () => {
             const adapter = createClientStorageAdapter(defaultOptions);
             const newExtra = { something: 'else' };
 
@@ -230,7 +230,7 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when item does not exist', () => {
-            it('should return undefined', () => {
+            it('should resolve with undefined', () => {
                 const adapter = createClientStorageAdapter(defaultOptions);
 
                 expect(adapter.setExtra(NONEXISTENT_KEY, FOO_EXTRA)).to.eventually.be.undefined;
@@ -248,7 +248,7 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when item exists', () => {
-            it('should return extra', (done) => {
+            it('should resolve with extra', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
 
                 adapter.getExtra(FOO_WITH_EXTRA_KEY).then((extra) => {
@@ -263,7 +263,7 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when item does not exist', () => {
-            it('should return undefined', (done) => {
+            it('should resolve with undefined', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
 
                 adapter.getExtra(NONEXISTENT_KEY).then((extra) => {
@@ -280,7 +280,7 @@ describe('clientStorageAdapter', () => {
 
     describe('hasItem', () => {
         context('when item exists', () => {
-            it('should return true', (done) => {
+            it('should resolve with true', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
 
                 adapter.hasItem(FOO_KEY).then((result) => {
@@ -295,7 +295,7 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when item does not exist', () => {
-            it('should return false', (done) => {
+            it('should resolve with false', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
 
                 adapter.hasItem(NONEXISTENT_KEY).then((result) => {
