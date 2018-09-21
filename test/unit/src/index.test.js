@@ -44,12 +44,6 @@ describe('clientStorageAdapter', () => {
         getItemStub.resetHistory();
         hasOwnPropertyStub.resetHistory();
         storageDummy.removeItem.resetHistory();
-
-        sandbox.spy(JSON, 'stringify');
-    });
-
-    afterEach(() => {
-        sandbox.restore();
     });
 
     describe('storage validation', () => {
@@ -90,11 +84,18 @@ describe('clientStorageAdapter', () => {
     });
 
     describe('setItem', () => {
-        it('should store and resolve with item', (done) => {
+        beforeEach(() => {
+            sandbox.spy(JSON, 'stringify');
+        });
+
+        afterEach(() => {
+            sandbox.restore();
+        });
+
+        it('should store an item', (done) => {
             const adapter = createClientStorageAdapter(defaultOptions);
 
             adapter.setItem(FOO_KEY, FOO_VALUE).then((item) => {
-                expect(item).to.deep.eq(fooItem);
                 expect(storageDummy.setItem)
                     .to.have.been.calledWith(FOO_KEY, fooItemStringified)
                     .to.have.been.calledOnce;
@@ -106,12 +107,17 @@ describe('clientStorageAdapter', () => {
             });
         });
 
+        it('should resolve with stored item', () => {
+            const adapter = createClientStorageAdapter(defaultOptions);
+
+            expect(adapter.setItem(FOO_KEY, FOO_VALUE)).to.eventually.deep.equal(fooItem);
+        });
+
         context('when extra is passed', () => {
-            it('should store and resolve with item with extra', (done) => {
+            it('should store an item with extra', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
 
                 adapter.setItem(FOO_WITH_EXTRA_KEY, FOO_VALUE, FOO_EXTRA).then((item) => {
-                    expect(item).to.deep.eq(fooWithExtraItem);
                     expect(storageDummy.setItem)
                         .to.have.been.calledWith(FOO_WITH_EXTRA_KEY, fooWithExtraItemStringified)
                         .to.have.been.calledOnce;
@@ -121,6 +127,13 @@ describe('clientStorageAdapter', () => {
 
                     done();
                 });
+            });
+
+            it('should resolve with stored item with extra', () => {
+                const adapter = createClientStorageAdapter(defaultOptions);
+
+                expect(adapter.setItem(FOO_WITH_EXTRA_KEY, FOO_VALUE, FOO_EXTRA))
+                    .to.eventually.deep.equal(fooWithExtraItem);
             });
         });
     });
@@ -218,15 +231,21 @@ describe('clientStorageAdapter', () => {
             sandbox.restore();
         });
 
-        it('should store and resolve with extra', () => {
+        it('should store extra', () => {
+            const adapter = createClientStorageAdapter(defaultOptions);
+            const newExtra = { something: 'else' };
+            const stringifiedItemWithNewExtra = JSON.stringify(createItem(FOO_WITH_EXTRA_KEY, FOO_VALUE, newExtra));
+
+            adapter.setExtra(FOO_WITH_EXTRA_KEY, newExtra).then(() => {
+                expect(storageDummy.setItem).to.have.been.calledWith(FOO_WITH_EXTRA_KEY, stringifiedItemWithNewExtra);
+            });
+        });
+
+        it('should resolve with extra', () => {
             const adapter = createClientStorageAdapter(defaultOptions);
             const newExtra = { something: 'else' };
 
-            adapter.getExtra(FOO_WITH_EXTRA_KEY).then((extra) => {
-                expect(extra).to.deep.equal(FOO_EXTRA);
-
-                expect(adapter.setExtra(FOO_WITH_EXTRA_KEY, newExtra)).to.eventually.deep.equal(newExtra);
-            });
+            expect(adapter.setExtra(FOO_WITH_EXTRA_KEY, newExtra)).to.eventually.deep.equal(newExtra);
         });
 
         context('when item does not exist', () => {
