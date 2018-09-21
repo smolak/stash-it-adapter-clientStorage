@@ -73,10 +73,10 @@ const ClientStorageAdapter = ({ storage }) => {
                 if (result) {
                     storage.removeItem(key);
 
-                    return !this.hasItem(key).then((result) => result);
+                    return this.hasItem(key).then((result) => !result);
                 }
 
-                return false
+                return false;
             });
         }
     };

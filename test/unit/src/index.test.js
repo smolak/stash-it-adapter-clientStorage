@@ -318,7 +318,7 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when item exists', () => {
-            it('should remove that item returning true', () => {
+            it('should remove that item returning true', (done) => {
                 customHasOwnPropertyStub.onCall(0).returns(true);
                 customHasOwnPropertyStub.onCall(1).returns(false);
 
@@ -328,20 +328,23 @@ describe('clientStorageAdapter', () => {
                     { hasOwnProperty: customHasOwnPropertyStub }
                 );
                 const adapter = createClientStorageAdapter({ storage: customStorageDummy });
-                const result = adapter.removeItem(FOO_KEY);
 
-                expect(result).to.be.true;
-                expect(customHasOwnPropertyStub)
-                    .to.have.been.calledWith(FOO_KEY)
-                    .to.have.been.calledTwice;
-                expect(customStorageDummy.removeItem)
-                    .to.have.been.calledWith(FOO_KEY)
-                    .to.have.been.calledOnce;
+                adapter.removeItem(FOO_KEY).then((result) => {
+                    expect(result).to.be.true;
+                    expect(customHasOwnPropertyStub)
+                        .to.have.been.calledWith(FOO_KEY)
+                        .to.have.been.calledTwice;
+                    expect(customStorageDummy.removeItem)
+                        .to.have.been.calledWith(FOO_KEY)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
             });
         });
 
         context('when item does not exist', () => {
-            it('should not remove that item and return false', () => {
+            it('should not remove that item and return false', (done) => {
                 customHasOwnPropertyStub.returns(false);
 
                 const customStorageDummy = Object.assign(
@@ -350,13 +353,16 @@ describe('clientStorageAdapter', () => {
                     { hasOwnProperty: customHasOwnPropertyStub }
                 );
                 const adapter = createClientStorageAdapter({ storage: customStorageDummy });
-                const result = adapter.removeItem(NONEXISTENT_KEY);
 
-                expect(result).to.be.false;
-                expect(customHasOwnPropertyStub)
-                    .to.have.been.calledWith(NONEXISTENT_KEY)
-                    .to.have.been.calledOnce;
-                expect(storageDummy.removeItem).to.not.have.been.called;
+                adapter.removeItem(NONEXISTENT_KEY).then((result) => {
+                    expect(result).to.be.false;
+                    expect(customHasOwnPropertyStub)
+                        .to.have.been.calledWith(NONEXISTENT_KEY)
+                        .to.have.been.calledOnce;
+                    expect(storageDummy.removeItem).to.not.have.been.called;
+
+                    done();
+                });
             });
         });
     });
