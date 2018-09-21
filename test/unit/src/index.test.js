@@ -280,24 +280,32 @@ describe('clientStorageAdapter', () => {
 
     describe('hasItem', () => {
         context('when item exists', () => {
-            it('should return true', () => {
+            it('should return true', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
 
-                expect(adapter.hasItem(FOO_KEY)).to.be.true;
-                expect(storageDummy.hasOwnProperty)
-                    .to.have.been.calledWith(FOO_KEY)
-                    .to.have.been.calledOnce;
+                adapter.hasItem(FOO_KEY).then((result) => {
+                    expect(result).to.be.true;
+                    expect(storageDummy.hasOwnProperty)
+                        .to.have.been.calledWith(FOO_KEY)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
             });
         });
 
         context('when item does not exist', () => {
-            it('should return false', () => {
+            it('should return false', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
 
-                expect(adapter.hasItem(NONEXISTENT_KEY)).to.be.false;
-                expect(storageDummy.hasOwnProperty)
-                    .to.have.been.calledWith(NONEXISTENT_KEY)
-                    .to.have.been.calledOnce;
+                adapter.hasItem(NONEXISTENT_KEY).then((result) => {
+                    expect(result).to.be.false;
+                    expect(storageDummy.hasOwnProperty)
+                        .to.have.been.calledWith(NONEXISTENT_KEY)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
             });
         });
     });

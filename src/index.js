@@ -65,17 +65,19 @@ const ClientStorageAdapter = ({ storage }) => {
         },
 
         hasItem(key) {
-            return storage.hasOwnProperty(key);
+            return Promise.resolve(storage.hasOwnProperty(key));
         },
 
         removeItem(key) {
-            if (this.hasItem(key)) {
-                storage.removeItem(key);
+            return this.hasItem(key).then((result) => {
+                if (result) {
+                    storage.removeItem(key);
 
-                return !this.hasItem(key);
-            }
+                    return !this.hasItem(key).then((result) => result);
+                }
 
-            return false;
+                return false
+            });
         }
     };
 };
