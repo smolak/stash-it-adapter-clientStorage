@@ -16,7 +16,7 @@ const ClientStorageAdapter = ({ storage }) => {
 
     return {
         buildKey(key) {
-            return key;
+            return Promise.resolve(key);
         },
 
         setItem(key, value, extra = {}) {
@@ -25,59 +25,59 @@ const ClientStorageAdapter = ({ storage }) => {
 
             storage.setItem(key, stringifiedItem);
 
-            return item;
+            return Promise.resolve(item);
         },
 
         getItem(key) {
             const stringifiedItem = storage.getItem(key);
+            const result = stringifiedItem === null ? undefined : JSON.parse(stringifiedItem);
 
-            return stringifiedItem === null ? undefined : JSON.parse(stringifiedItem);
+            return Promise.resolve(result);
         },
 
         addExtra(key, extra) {
-            const item = this.getItem(key);
+            return this.getItem(key).then((item) => {
+                if (!item) {
+                    return undefined;
+                }
 
-            if (!item) {
-                return undefined;
-            }
+                const currentExtra = item.extra;
+                const combinedExtra = Object.assign({}, currentExtra, extra);
 
-            const currentExtra = item.extra;
-            const combinedExtra = Object.assign({}, currentExtra, extra);
-            const newItem = this.setItem(key, item.value, combinedExtra);
-
-            return newItem.extra;
+                return this.setItem(key, item.value, combinedExtra).then((newItem) => newItem.extra);
+            });
         },
 
         setExtra(key, extra) {
-            const item = this.getItem(key);
+            return this.getItem(key).then((item) => {
+                if (!item) {
+                    return undefined;
+                }
 
-            if (!item) {
-                return undefined;
-            }
-
-            const newItem = this.setItem(key, item.value, extra);
-
-            return newItem.extra;
+                return this.setItem(key, item.value, extra).then((newItem) => newItem.extra);
+            });
         },
 
         getExtra(key) {
-            const item = this.getItem(key);
-
-            return item ? item.extra : undefined;
+            return this.getItem(key).then((item) => {
+                return item ? item.extra : undefined;
+            });
         },
 
         hasItem(key) {
-            return storage.hasOwnProperty(key);
+            return Promise.resolve(storage.hasOwnProperty(key));
         },
 
         removeItem(key) {
-            if (this.hasItem(key)) {
-                storage.removeItem(key);
+            return this.hasItem(key).then((result) => {
+                if (result) {
+                    storage.removeItem(key);
 
-                return !this.hasItem(key);
-            }
+                    return this.hasItem(key).then((result) => !result);
+                }
 
-            return false;
+                return false;
+            });
         }
     };
 };

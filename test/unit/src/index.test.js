@@ -44,12 +44,6 @@ describe('clientStorageAdapter', () => {
         getItemStub.resetHistory();
         hasOwnPropertyStub.resetHistory();
         storageDummy.removeItem.resetHistory();
-
-        sandbox.spy(JSON, 'stringify');
-    });
-
-    afterEach(() => {
-        sandbox.restore();
     });
 
     describe('storage validation', () => {
@@ -82,39 +76,64 @@ describe('clientStorageAdapter', () => {
     });
 
     describe('buildKey', () => {
-        it('should return built key', () => {
+        it('should resolve with built key', () => {
             const adapter = createClientStorageAdapter(defaultOptions);
 
-            expect(adapter.buildKey('key')).to.eq('key');
+            expect(adapter.buildKey('key')).to.eventually.equal('key');
         });
     });
 
     describe('setItem', () => {
-        it('should store and return item', () => {
-            const adapter = createClientStorageAdapter(defaultOptions);
-            const item = adapter.setItem(FOO_KEY, FOO_VALUE);
-
-            expect(item).to.deep.eq(fooItem);
-            expect(storageDummy.setItem)
-                .to.have.been.calledWith(FOO_KEY, fooItemStringified)
-                .to.have.been.calledOnce;
-            expect(JSON.stringify)
-                .to.have.been.calledWith(item)
-                .to.have.been.calledOnce;
+        beforeEach(() => {
+            sandbox.spy(JSON, 'stringify');
         });
 
-        context('when extra is passed', () => {
-            it('should store and return item with extra', () => {
-                const adapter = createClientStorageAdapter(defaultOptions);
-                const item = adapter.setItem(FOO_WITH_EXTRA_KEY, FOO_VALUE, FOO_EXTRA);
+        afterEach(() => {
+            sandbox.restore();
+        });
 
-                expect(item).to.deep.eq(fooWithExtraItem);
+        it('should store an item', (done) => {
+            const adapter = createClientStorageAdapter(defaultOptions);
+
+            adapter.setItem(FOO_KEY, FOO_VALUE).then((item) => {
                 expect(storageDummy.setItem)
-                    .to.have.been.calledWith(FOO_WITH_EXTRA_KEY, fooWithExtraItemStringified)
+                    .to.have.been.calledWith(FOO_KEY, fooItemStringified)
                     .to.have.been.calledOnce;
                 expect(JSON.stringify)
                     .to.have.been.calledWith(item)
                     .to.have.been.calledOnce;
+
+                done();
+            });
+        });
+
+        it('should resolve with stored item', () => {
+            const adapter = createClientStorageAdapter(defaultOptions);
+
+            expect(adapter.setItem(FOO_KEY, FOO_VALUE)).to.eventually.deep.equal(fooItem);
+        });
+
+        context('when extra is passed', () => {
+            it('should store an item with extra', (done) => {
+                const adapter = createClientStorageAdapter(defaultOptions);
+
+                adapter.setItem(FOO_WITH_EXTRA_KEY, FOO_VALUE, FOO_EXTRA).then((item) => {
+                    expect(storageDummy.setItem)
+                        .to.have.been.calledWith(FOO_WITH_EXTRA_KEY, fooWithExtraItemStringified)
+                        .to.have.been.calledOnce;
+                    expect(JSON.stringify)
+                        .to.have.been.calledWith(item)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
+            });
+
+            it('should resolve with stored item with extra', () => {
+                const adapter = createClientStorageAdapter(defaultOptions);
+
+                expect(adapter.setItem(FOO_WITH_EXTRA_KEY, FOO_VALUE, FOO_EXTRA))
+                    .to.eventually.deep.equal(fooWithExtraItem);
             });
         });
     });
@@ -129,29 +148,35 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when item exists', () => {
-            it('should return that item', () => {
+            it('should resolve with that item', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
-                const item = adapter.getItem(FOO_KEY);
 
-                expect(item).to.deep.eq(fooItem);
-                expect(storageDummy.getItem)
-                    .to.have.been.calledWith(FOO_KEY)
-                    .to.have.been.calledOnce;
-                expect(JSON.parse)
-                    .to.have.been.calledWith(fooItemStringified)
-                    .to.have.been.calledOnce;
+                adapter.getItem(FOO_KEY).then((item) => {
+                    expect(item).to.deep.eq(fooItem);
+                    expect(storageDummy.getItem)
+                        .to.have.been.calledWith(FOO_KEY)
+                        .to.have.been.calledOnce;
+                    expect(JSON.parse)
+                        .to.have.been.calledWith(fooItemStringified)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
             });
         });
 
         context('when item does not exist', () => {
-            it('should return undefined', () => {
+            it('should resolve with undefined', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
-                const item = adapter.getItem(NONEXISTENT_KEY);
 
-                expect(item).to.be.undefined;
-                expect(storageDummy.getItem)
-                    .to.have.been.calledWith(NONEXISTENT_KEY)
-                    .to.have.been.calledOnce;
+                adapter.getItem(NONEXISTENT_KEY).then((item) => {
+                    expect(item).to.be.undefined;
+                    expect(storageDummy.getItem)
+                        .to.have.been.calledWith(NONEXISTENT_KEY)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
             });
         });
     });
@@ -167,32 +192,30 @@ describe('clientStorageAdapter', () => {
             sandbox.restore();
         });
 
-        it('should add extra to existing one and return combined extra', () => {
+        it('should add extra to existing one and resolve with combined extra', () => {
             const addedExtra = { something: 'else' };
             const expectedCombinedExtra = { ...FOO_EXTRA, ...addedExtra };
             const adapter = createClientStorageAdapter(defaultOptions);
-            const returnedExtra = adapter.addExtra(FOO_WITH_EXTRA_KEY, addedExtra);
 
-            expect(returnedExtra).to.deep.equal(expectedCombinedExtra);
+            expect(adapter.addExtra(FOO_WITH_EXTRA_KEY, addedExtra)).to.eventually.deep.equal(expectedCombinedExtra);
         });
 
         context('when item does not exist', () => {
-            it('should return undefined', () => {
+            it('should resolve with undefined', () => {
                 const adapter = createClientStorageAdapter(defaultOptions);
-                const addedExtra = adapter.addExtra(NONEXISTENT_KEY, FOO_EXTRA);
 
-                expect(addedExtra).to.be.undefined;
+                expect(adapter.addExtra(NONEXISTENT_KEY, FOO_EXTRA)).to.eventually.be.undefined;
             });
         });
 
         context('when added extra contains properties of existing extra', () => {
-            it('should return extra with existing properties overwritten with new ones', () => {
+            it('should resolve with extra where existing properties are overwritten with new ones', () => {
                 const adapter = createClientStorageAdapter(defaultOptions);
                 const extraToAdd = { foo: 'entirely different foo extra' };
-                const returnedExtra = adapter.addExtra(FOO_WITH_EXTRA_KEY, extraToAdd);
                 const expectedCombinedExtra = { ...FOO_EXTRA, ...extraToAdd };
 
-                expect(returnedExtra).to.deep.equal(expectedCombinedExtra);
+                expect(adapter.addExtra(FOO_WITH_EXTRA_KEY, extraToAdd))
+                    .to.eventually.deep.equal(expectedCombinedExtra);
             });
         });
     });
@@ -208,22 +231,28 @@ describe('clientStorageAdapter', () => {
             sandbox.restore();
         });
 
-        it('should store and return extra', () => {
+        it('should store extra', () => {
             const adapter = createClientStorageAdapter(defaultOptions);
-            const currentExtra = adapter.getExtra(FOO_WITH_EXTRA_KEY);
             const newExtra = { something: 'else' };
-            const returnedExtra = adapter.setExtra(FOO_WITH_EXTRA_KEY, newExtra);
+            const stringifiedItemWithNewExtra = JSON.stringify(createItem(FOO_WITH_EXTRA_KEY, FOO_VALUE, newExtra));
 
-            expect(currentExtra).to.deep.equal(FOO_EXTRA);
-            expect(returnedExtra).to.deep.equal(newExtra);
+            adapter.setExtra(FOO_WITH_EXTRA_KEY, newExtra).then(() => {
+                expect(storageDummy.setItem).to.have.been.calledWith(FOO_WITH_EXTRA_KEY, stringifiedItemWithNewExtra);
+            });
+        });
+
+        it('should resolve with extra', () => {
+            const adapter = createClientStorageAdapter(defaultOptions);
+            const newExtra = { something: 'else' };
+
+            expect(adapter.setExtra(FOO_WITH_EXTRA_KEY, newExtra)).to.eventually.deep.equal(newExtra);
         });
 
         context('when item does not exist', () => {
-            it('should return undefined', () => {
+            it('should resolve with undefined', () => {
                 const adapter = createClientStorageAdapter(defaultOptions);
-                const extra = adapter.setExtra(NONEXISTENT_KEY, FOO_EXTRA);
 
-                expect(extra).to.be.undefined;
+                expect(adapter.setExtra(NONEXISTENT_KEY, FOO_EXTRA)).to.eventually.be.undefined;
             });
         });
     });
@@ -238,50 +267,64 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when item exists', () => {
-            it('should return extra', () => {
+            it('should resolve with extra', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
-                const extra = adapter.getExtra(FOO_WITH_EXTRA_KEY);
 
-                expect(extra).to.deep.equal(FOO_EXTRA);
-                expect(storageDummy.getItem)
-                    .to.have.been.calledWith(FOO_WITH_EXTRA_KEY)
-                    .to.have.been.calledOnce;
+                adapter.getExtra(FOO_WITH_EXTRA_KEY).then((extra) => {
+                    expect(extra).to.deep.equal(FOO_EXTRA);
+                    expect(storageDummy.getItem)
+                        .to.have.been.calledWith(FOO_WITH_EXTRA_KEY)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
             });
         });
 
         context('when item does not exist', () => {
-            it('should return undefined', () => {
+            it('should resolve with undefined', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
-                const extra = adapter.getExtra(NONEXISTENT_KEY);
 
-                expect(extra).to.be.undefined;
-                expect(storageDummy.getItem)
-                    .to.have.been.calledWith(NONEXISTENT_KEY)
-                    .to.have.been.calledOnce;
+                adapter.getExtra(NONEXISTENT_KEY).then((extra) => {
+                    expect(extra).to.be.undefined;
+                    expect(storageDummy.getItem)
+                        .to.have.been.calledWith(NONEXISTENT_KEY)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
             });
         });
     });
 
     describe('hasItem', () => {
         context('when item exists', () => {
-            it('should return true', () => {
+            it('should resolve with true', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
 
-                expect(adapter.hasItem(FOO_KEY)).to.be.true;
-                expect(storageDummy.hasOwnProperty)
-                    .to.have.been.calledWith(FOO_KEY)
-                    .to.have.been.calledOnce;
+                adapter.hasItem(FOO_KEY).then((result) => {
+                    expect(result).to.be.true;
+                    expect(storageDummy.hasOwnProperty)
+                        .to.have.been.calledWith(FOO_KEY)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
             });
         });
 
         context('when item does not exist', () => {
-            it('should return false', () => {
+            it('should resolve with false', (done) => {
                 const adapter = createClientStorageAdapter(defaultOptions);
 
-                expect(adapter.hasItem(NONEXISTENT_KEY)).to.be.false;
-                expect(storageDummy.hasOwnProperty)
-                    .to.have.been.calledWith(NONEXISTENT_KEY)
-                    .to.have.been.calledOnce;
+                adapter.hasItem(NONEXISTENT_KEY).then((result) => {
+                    expect(result).to.be.false;
+                    expect(storageDummy.hasOwnProperty)
+                        .to.have.been.calledWith(NONEXISTENT_KEY)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
             });
         });
     });
@@ -294,7 +337,7 @@ describe('clientStorageAdapter', () => {
         });
 
         context('when item exists', () => {
-            it('should remove that item returning true', () => {
+            it('should remove that item', (done) => {
                 customHasOwnPropertyStub.onCall(0).returns(true);
                 customHasOwnPropertyStub.onCall(1).returns(false);
 
@@ -304,20 +347,36 @@ describe('clientStorageAdapter', () => {
                     { hasOwnProperty: customHasOwnPropertyStub }
                 );
                 const adapter = createClientStorageAdapter({ storage: customStorageDummy });
-                const result = adapter.removeItem(FOO_KEY);
 
-                expect(result).to.be.true;
-                expect(customHasOwnPropertyStub)
-                    .to.have.been.calledWith(FOO_KEY)
-                    .to.have.been.calledTwice;
-                expect(customStorageDummy.removeItem)
-                    .to.have.been.calledWith(FOO_KEY)
-                    .to.have.been.calledOnce;
+                adapter.removeItem(FOO_KEY).then(() => {
+                    expect(customHasOwnPropertyStub)
+                        .to.have.been.calledWith(FOO_KEY)
+                        .to.have.been.calledTwice;
+                    expect(customStorageDummy.removeItem)
+                        .to.have.been.calledWith(FOO_KEY)
+                        .to.have.been.calledOnce;
+
+                    done();
+                });
+            });
+
+            it('should resolve with true', () => {
+                customHasOwnPropertyStub.onCall(0).returns(true);
+                customHasOwnPropertyStub.onCall(1).returns(false);
+
+                const customStorageDummy = Object.assign(
+                    {},
+                    storageDummy,
+                    { hasOwnProperty: customHasOwnPropertyStub }
+                );
+                const adapter = createClientStorageAdapter({ storage: customStorageDummy });
+
+                expect(adapter.removeItem(FOO_KEY)).to.eventually.be.true;
             });
         });
 
         context('when item does not exist', () => {
-            it('should not remove that item and return false', () => {
+            it('should not remove that item', (done) => {
                 customHasOwnPropertyStub.returns(false);
 
                 const customStorageDummy = Object.assign(
@@ -326,13 +385,28 @@ describe('clientStorageAdapter', () => {
                     { hasOwnProperty: customHasOwnPropertyStub }
                 );
                 const adapter = createClientStorageAdapter({ storage: customStorageDummy });
-                const result = adapter.removeItem(NONEXISTENT_KEY);
 
-                expect(result).to.be.false;
-                expect(customHasOwnPropertyStub)
-                    .to.have.been.calledWith(NONEXISTENT_KEY)
-                    .to.have.been.calledOnce;
-                expect(storageDummy.removeItem).to.not.have.been.called;
+                adapter.removeItem(NONEXISTENT_KEY).then(() => {
+                    expect(customHasOwnPropertyStub)
+                        .to.have.been.calledWith(NONEXISTENT_KEY)
+                        .to.have.been.calledOnce;
+                    expect(storageDummy.removeItem).to.not.have.been.called;
+
+                    done();
+                });
+            });
+
+            it('should resolve with false', () => {
+                customHasOwnPropertyStub.returns(false);
+
+                const customStorageDummy = Object.assign(
+                    {},
+                    storageDummy,
+                    { hasOwnProperty: customHasOwnPropertyStub }
+                );
+                const adapter = createClientStorageAdapter({ storage: customStorageDummy });
+
+                expect(adapter.removeItem(NONEXISTENT_KEY)).to.eventually.be.false;
             });
         });
     });
